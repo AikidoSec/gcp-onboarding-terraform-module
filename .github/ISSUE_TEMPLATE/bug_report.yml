@@ -1,0 +1,118 @@
+name: Bug Report
+description: Report a bug or issue with the Terraform module
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+      placeholder: What went wrong?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: I expected...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Instead, this happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Terraform Configuration
+      description: Please provide relevant Terraform configuration (remove sensitive data)
+      render: hcl
+      placeholder: |
+        module "aikido" {
+          source = "..."
+          # configuration here
+        }
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error Output
+      description: Please copy and paste any relevant error output
+      render: shell
+      placeholder: Paste error output here
+
+  - type: input
+    id: module-version
+    attributes:
+      label: Module Version
+      placeholder: v1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: terraform-version
+    attributes:
+      label: Terraform Version
+      placeholder: 1.6.0
+    validations:
+      required: true
+
+  - type: input
+    id: google-provider-version
+    attributes:
+      label: Google Provider Version
+      placeholder: 7.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Which module?
+      options:
+        - modules/project
+        - modules/org
+        - Both
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      placeholder: Any other relevant information...
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I have read and agree to the project's Code of Conduct
+          required: true

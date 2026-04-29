@@ -1,0 +1,7 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# GCP project ID to connect to Aikido
+project_id = "your-project-id"
+
+# GCP project number (find with: gcloud projects describe your-project-id --format='value(projectNumber)')
+project_number = "123456789"

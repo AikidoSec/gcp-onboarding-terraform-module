@@ -1,0 +1,119 @@
+name: Terraform Module Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.9
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init (project module)
+        id: init-project-module
+        run: |
+          cd modules/project
+          terraform init -backend=false
+
+      - name: Terraform Validate (project module)
+        id: validate-project-module
+        run: |
+          cd modules/project
+          terraform validate -no-color
+
+      - name: Terraform Init (org module)
+        id: init-org-module
+        run: |
+          cd modules/org
+          terraform init -backend=false
+
+      - name: Terraform Validate (org module)
+        id: validate-org-module
+        run: |
+          cd modules/org
+          terraform validate -no-color
+
+      - name: Terraform Init (project example)
+        id: init-project-example
+        run: |
+          cd examples/project
+          terraform init -backend=false
+
+      - name: Terraform Validate (project example)
+        id: validate-project-example
+        run: |
+          cd examples/project
+          terraform validate -no-color
+
+      - name: Terraform Init (org example)
+        id: init-org-example
+        run: |
+          cd examples/org
+          terraform init -backend=false
+
+      - name: Terraform Validate (org example)
+        id: validate-org-example
+        run: |
+          cd examples/org
+          terraform validate -no-color
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Validation (project module) 🤖\`${{ steps.validate-project-module.outcome }}\`
+            #### Terraform Validation (org module) 🤖\`${{ steps.validate-org-module.outcome }}\`
+            #### Terraform Validation (project example) 📝\`${{ steps.validate-project-example.outcome }}\`
+            #### Terraform Validation (org example) 📝\`${{ steps.validate-org-example.outcome }}\`
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+  tflint:
+    name: TFLint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
+      - name: Init TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint --format compact --recursive
