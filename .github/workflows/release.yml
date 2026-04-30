@@ -11,7 +11,7 @@ permissions:
 jobs:
   release:
     name: Create Release
-    runs-on: ubuntu-latest
+    runs-on: standard-runner-no-rights-public-ip
 
     steps:
       - name: Checkout code
@@ -104,7 +104,7 @@ jobs:
 
   validate-release:
     name: Validate Release
-    runs-on: ubuntu-latest
+    runs-on: standard-runner-no-rights-public-ip
     needs: release
 
     steps:

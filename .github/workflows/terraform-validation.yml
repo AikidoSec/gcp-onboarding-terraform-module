@@ -14,7 +14,7 @@ permissions:
 jobs:
   validate:
     name: Validate Terraform
-    runs-on: ubuntu-latest
+    runs-on: standard-runner-no-rights-public-ip
 
     steps:
       - name: Checkout code
@@ -101,7 +101,7 @@ jobs:
 
   tflint:
     name: TFLint
-    runs-on: ubuntu-latest
+    runs-on: standard-runner-no-rights-public-ip
 
     steps:
       - name: Checkout code
