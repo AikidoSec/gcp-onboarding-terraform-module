@@ -16,7 +16,7 @@ Connects a single GCP project to Aikido. It:
 - Enables the required Google APIs in the project
 - Creates a Workload Identity Pool and AWS-backed provider in the project
 - Grants Aikido read-only IAM access at the **project** level (`roles/viewer`, `roles/iam.securityReviewer`)
-- Optionally grants Artifact Registry read access for container scanning
+- Grants Artifact Registry read access for container scanning
 
 ### Usage
 
@@ -35,7 +35,6 @@ module "aikido" {
 |------|----------|---------|-------------|
 | `project_id` | yes | — | GCP project ID to connect |
 | `project_number` | yes | — | GCP project number |
-| `enable_artifact_registry_reader` | no | `false` | Grant Artifact Registry read access for container scanning |
 | `project_roles` | no | `roles/viewer`, `roles/iam.securityReviewer` | Project-level IAM roles granted to Aikido |
 | `workload_identity_pool_id` | no | `aikido-identity-pool` | |
 | `workload_identity_pool_provider_id` | no | `aikido-aws-provider` | |
@@ -83,7 +82,7 @@ module "aikido" {
 | `organization_id` | yes | — | GCP organization ID to connect |
 | `project_id` | yes | — | Host project ID (holds the Workload Identity Pool) |
 | `project_number` | yes | — | Host project number |
-| `enable_artifact_registry_reader` | no | `true` | Grant org-level Artifact Registry read access for container scanning |
+| `enable_artifact_registry_reader` | no | `false` | Grant org-level Artifact Registry read access for container scanning |
 | `org_roles` | no | `roles/viewer`, `roles/iam.securityReviewer`, `roles/resourcemanager.folderViewer` | Org-level IAM roles granted to Aikido |
 | `workload_identity_pool_id` | no | `aikido-identity-pool` | |
 | `workload_identity_pool_provider_id` | no | `aikido-aws-provider` | |

@@ -107,7 +107,7 @@ resource "google_project_iam_member" "aikido_project_roles" {
 }
 
 resource "google_project_iam_member" "aikido_artifact_registry_reader" {
-  for_each = var.enable_artifact_registry_reader ? local.artifact_registry_principal_members : {}
+  for_each = local.artifact_registry_principal_members
 
   project = var.project_id
   role    = "roles/artifactregistry.reader"

@@ -80,9 +80,3 @@ variable "project_roles" {
     "roles/iam.securityReviewer",
   ]
 }
-
-variable "enable_artifact_registry_reader" {
-  description = "Whether to grant Artifact Registry read access to Aikido's container scanning role."
-  type        = bool
-  default     = false
-}
