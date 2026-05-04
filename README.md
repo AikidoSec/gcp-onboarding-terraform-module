@@ -56,7 +56,8 @@ Connects an entire GCP organization to Aikido. The Workload Identity Pool lives 
 
 It:
 
-- Enables the required Google APIs in the host project
+- Enables the APIs required for Workload Identity Federation in the host project (`iam.googleapis.com`, `iamcredentials.googleapis.com`, `sts.googleapis.com`)
+- Optionally enables the full set of Google APIs in the host project (`enable_host_project_services`)
 - Creates a Workload Identity Pool and AWS-backed provider in the host project
 - Grants Aikido read-only IAM access at the **organization** level (`roles/viewer`, `roles/iam.securityReviewer`, `roles/resourcemanager.folderViewer`)
 - Optionally grants organization-level Artifact Registry read access for container scanning
@@ -83,6 +84,7 @@ module "aikido" {
 | `project_id` | yes | — | Host project ID (holds the Workload Identity Pool) |
 | `project_number` | yes | — | Host project number |
 | `enable_artifact_registry_reader` | no | `false` | Grant org-level Artifact Registry read access for container scanning |
+| `enable_host_project_services` | no | `false` | Enable the full set of Google APIs in the host project. The three APIs required for Workload Identity Federation (`iam.googleapis.com`, `iamcredentials.googleapis.com`, `sts.googleapis.com`) are always enabled regardless of this setting |
 | `org_roles` | no | `roles/viewer`, `roles/iam.securityReviewer`, `roles/resourcemanager.folderViewer` | Org-level IAM roles granted to Aikido |
 | `workload_identity_pool_id` | no | `aikido-identity-pool` | |
 | `workload_identity_pool_provider_id` | no | `aikido-aws-provider` | |

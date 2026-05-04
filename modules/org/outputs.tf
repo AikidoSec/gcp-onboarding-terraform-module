@@ -20,5 +20,5 @@ output "credential_config_json" {
 
 output "enabled_services" {
   description = "Google APIs enabled by this module in the host project."
-  value       = sort(tolist(local.base_services))
+  value       = sort(tolist(local.enabled_services))
 }

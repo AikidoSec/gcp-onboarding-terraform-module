@@ -1,6 +1,13 @@
 locals {
-  # APIs required for general GCP visibility
-  base_services = toset([
+  # Always enabled — required for the Workload Identity Pool and provider to function
+  wif_services = toset([
+    "iam.googleapis.com",
+    "iamcredentials.googleapis.com",
+    "sts.googleapis.com",
+  ])
+
+  # Optionally enabled in the host project when enable_host_project_services = true
+  optional_services = toset([
     "appengine.googleapis.com",
     "artifactregistry.googleapis.com",
     "bigquery.googleapis.com",
@@ -9,15 +16,14 @@ locals {
     "compute.googleapis.com",
     "container.googleapis.com",
     "dns.googleapis.com",
-    "iam.googleapis.com",
-    "iamcredentials.googleapis.com",
     "logging.googleapis.com",
     "monitoring.googleapis.com",
     "sqladmin.googleapis.com",
     "storage.googleapis.com",
     "storage-component.googleapis.com",
-    "sts.googleapis.com",
   ])
+
+  enabled_services = var.enable_host_project_services ? setunion(local.wif_services, local.optional_services) : local.wif_services
 
   principal_prefix = "principalSet://iam.googleapis.com/projects/${var.project_number}/locations/global/workloadIdentityPools/${var.workload_identity_pool_id}/attribute.aws_role"
 
@@ -62,7 +68,7 @@ locals {
 }
 
 resource "google_project_service" "required" {
-  for_each = local.base_services
+  for_each = local.enabled_services
 
   project            = var.project_id
   service            = each.value

@@ -19,6 +19,12 @@ variable "disable_services_on_destroy" {
   default     = false
 }
 
+variable "enable_host_project_services" {
+  description = "Whether to enable the full set of Google APIs in the host project. The three APIs required for Workload Identity Federation are always enabled regardless of this setting."
+  type        = bool
+  default     = false
+}
+
 variable "workload_identity_pool_id" {
   description = "ID for the Aikido Workload Identity Pool."
   type        = string
