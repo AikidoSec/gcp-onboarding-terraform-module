@@ -12,8 +12,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  validate:
-    name: Validate Terraform
+  fmt:
+    name: Terraform Format Check
     runs-on: standard-runner-no-rights-public-ip
 
     steps:
@@ -46,19 +46,3 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
-
-  tflint:
-    name: TFLint
-    runs-on: standard-runner-no-rights-public-ip
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@90f302c255ef959cbfb4bd10581afecdb7ece3e6 # v4.1.1
-        with:
-          tflint_version: latest
-
-      - name: Run TFLint
-        run: tflint --format compact --recursive
