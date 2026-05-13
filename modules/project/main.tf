@@ -1,22 +1,25 @@
 locals {
-  required_services = toset([
-    "appengine.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "bigquery.googleapis.com",
-    "cloudkms.googleapis.com",
-    "cloudresourcemanager.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "dns.googleapis.com",
-    "iam.googleapis.com",
-    "iamcredentials.googleapis.com",
-    "logging.googleapis.com",
-    "monitoring.googleapis.com",
-    "sqladmin.googleapis.com",
-    "storage.googleapis.com",
-    "storage-component.googleapis.com",
-    "sts.googleapis.com",
-  ])
+  required_services = toset(
+    concat([
+      "appengine.googleapis.com",
+      "artifactregistry.googleapis.com",
+      "bigquery.googleapis.com",
+      "cloudkms.googleapis.com",
+      "cloudresourcemanager.googleapis.com",
+      "compute.googleapis.com",
+      "container.googleapis.com",
+      "dns.googleapis.com",
+      "iam.googleapis.com",
+      "iamcredentials.googleapis.com",
+      "logging.googleapis.com",
+      "monitoring.googleapis.com",
+      "sqladmin.googleapis.com",
+      "storage.googleapis.com",
+      "storage-component.googleapis.com",
+      "sts.googleapis.com",
+      ],
+    var.enable_vm_scanning ? ["cloudbuild.googleapis.com"] : []),
+  )
 
   principal_prefix = "principalSet://iam.googleapis.com/projects/${var.project_number}/locations/global/workloadIdentityPools/${var.workload_identity_pool_id}/attribute.aws_role"
 

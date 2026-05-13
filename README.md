@@ -9,6 +9,8 @@ Two modules are provided depending on your onboarding scope:
 | [`modules/project`](./modules/project) | Connecting a single GCP project |
 | [`modules/org`](./modules/org) | Connecting an entire GCP organization |
 
+> **Note**: GCP VM scanning support is currently available only in [`modules/project`](./modules/project).
+
 ## modules/project
 
 Connects a single GCP project to Aikido. It:
@@ -17,6 +19,7 @@ Connects a single GCP project to Aikido. It:
 - Creates a Workload Identity Pool and AWS-backed provider in the project
 - Grants Aikido read-only IAM access at the **project** level (`roles/viewer`, `roles/iam.securityReviewer`)
 - Grants Artifact Registry read access for container scanning
+- Optionally provisions the resources required for GCP VM scanning
 
 ### Usage
 
@@ -26,6 +29,11 @@ module "aikido" {
 
   project_id     = "my-gcp-project"
   project_number = "123456789"
+
+  # Optional: enable GCP VM scanning
+  # enable_vm_scanning          = true
+  # vm_scanning_bucket_name     = "my-aikido-vm-scanning-bucket"
+  # vm_scanning_bucket_location = "europe-west1"
 }
 ```
 
@@ -36,6 +44,9 @@ module "aikido" {
 | `project_id` | yes | — | GCP project ID to connect |
 | `project_number` | yes | — | GCP project number |
 | `project_roles` | no | `roles/viewer`, `roles/iam.securityReviewer` | Project-level IAM roles granted to Aikido |
+| `enable_vm_scanning` | no | `false` | Provision the resources required for GCP VM scanning |
+| `vm_scanning_bucket_name` | no | `null` | Name of the Cloud Storage bucket used for exported VM images |
+| `vm_scanning_bucket_location` | no | `null` | Location of the Cloud Storage bucket used for exported VM images |
 | `workload_identity_pool_id` | no | `aikido-identity-pool` | |
 | `workload_identity_pool_provider_id` | no | `aikido-aws-provider` | |
 | `disable_services_on_destroy` | no | `false` | Disable APIs when the module is destroyed |
@@ -45,6 +56,8 @@ module "aikido" {
 | Name | Description |
 |------|-------------|
 | `credential_config_json` | WIF credential config JSON to upload to Aikido |
+| `vm_scanning_bucket_name` | Name of the VM scanning export bucket, if enabled |
+| `vm_scanning_bucket_url` | URL of the VM scanning export bucket, if enabled |
 | `workload_identity_pool_name` | Full resource name of the Workload Identity Pool |
 | `workload_identity_pool_provider_name` | Full resource name of the AWS provider |
 
@@ -109,3 +122,5 @@ terraform output -raw credential_config_json > aikido-gcp-credentials.json
 ```
 
 Then upload `aikido-gcp-credentials.json` in the Aikido platform to finish the onboarding.
+
+If you enabled VM scanning, also provide the bucket name output by the module when connecting GCP VM scanning in Aikido. The same `credential_config_json` output is used for both cloud scanning and VM scanning.

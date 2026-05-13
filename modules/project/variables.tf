@@ -80,3 +80,75 @@ variable "project_roles" {
     "roles/iam.securityReviewer",
   ]
 }
+
+variable "enable_vm_scanning" {
+  description = "Whether to provision the GCP resources required for Aikido VM scanning."
+  type        = bool
+  default     = false
+}
+
+variable "vm_scanning_bucket_name" {
+  description = "Name of the Cloud Storage bucket used for exported VM images."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = !var.enable_vm_scanning || var.vm_scanning_bucket_name != null
+    error_message = "vm_scanning_bucket_name must be set when enable_vm_scanning is true."
+  }
+}
+
+variable "vm_scanning_bucket_location" {
+  description = "Location of the Cloud Storage bucket used for exported VM images."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = !var.enable_vm_scanning || var.vm_scanning_bucket_location != null
+    error_message = "vm_scanning_bucket_location must be set when enable_vm_scanning is true."
+  }
+}
+
+variable "vm_scanning_bucket_storage_class" {
+  description = "Storage class for the VM scanning export bucket."
+  type        = string
+  default     = "STANDARD"
+}
+
+variable "vm_scanning_bucket_force_destroy" {
+  description = "Whether to delete objects from the VM scanning export bucket when destroying it."
+  type        = bool
+  default     = false
+}
+
+variable "vm_scanning_bucket_public_access_prevention" {
+  description = "Public access prevention mode for the VM scanning export bucket."
+  type        = string
+  default     = "enforced"
+}
+
+variable "vm_scanning_bucket_uniform_bucket_level_access" {
+  description = "Whether to enable uniform bucket-level access on the VM scanning export bucket."
+  type        = bool
+  default     = true
+}
+
+variable "aikido_vm_scanning_role_arns" {
+  description = "Aikido AWS role ARNs that should receive access for GCP VM scanning."
+  type        = set(string)
+  default = [
+    "arn:aws:sts::881830977366:assumed-role/gcp-vm-scanner-role",
+  ]
+}
+
+variable "vm_scanning_role_id" {
+  description = "ID for the custom role used by Aikido VM scanning."
+  type        = string
+  default     = "aikidoSecurityVmScannerRole"
+}
+
+variable "vm_scanning_snapshot_delete_role_id" {
+  description = "ID for the custom role used only for deleting Aikido-managed VM snapshots."
+  type        = string
+  default     = "aikidoSecurityVmScannerSnapshotDeleteRole"
+}

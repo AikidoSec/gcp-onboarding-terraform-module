@@ -22,3 +22,13 @@ output "enabled_services" {
   description = "Google APIs enabled by this module."
   value       = sort(tolist(local.required_services))
 }
+
+output "vm_scanning_bucket_name" {
+  description = "Name of the Cloud Storage bucket used for VM scanning exports."
+  value       = try(google_storage_bucket.aikido_vm_scanning[0].name, null)
+}
+
+output "vm_scanning_bucket_url" {
+  description = "URL of the Cloud Storage bucket used for VM scanning exports."
+  value       = try(google_storage_bucket.aikido_vm_scanning[0].url, null)
+}

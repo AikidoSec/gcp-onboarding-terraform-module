@@ -5,3 +5,8 @@ project_id = "your-project-id"
 
 # GCP project number (find with: gcloud projects describe your-project-id --format='value(projectNumber)')
 project_number = "123456789"
+
+# Optional: enable GCP VM scanning support
+# enable_vm_scanning          = true
+# vm_scanning_bucket_name     = "my-aikido-vm-scanning-bucket"
+# vm_scanning_bucket_location = "europe-west1"

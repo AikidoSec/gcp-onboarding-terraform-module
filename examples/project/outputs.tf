@@ -12,3 +12,8 @@ output "workload_identity_pool_provider_name" {
   description = "Full resource name of the Aikido AWS Workload Identity Provider."
   value       = module.aikido_project.workload_identity_pool_provider_name
 }
+
+output "vm_scanning_bucket_name" {
+  description = "Name of the Cloud Storage bucket used for VM scanning exports."
+  value       = module.aikido_project.vm_scanning_bucket_name
+}
