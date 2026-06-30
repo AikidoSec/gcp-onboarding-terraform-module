@@ -22,3 +22,28 @@ output "enabled_services" {
   description = "Google APIs enabled by this module in the host project."
   value       = sort(tolist(local.enabled_services))
 }
+
+output "vm_scanner_member" {
+  description = "Service account member granted VM scanning access when enable_vm_scanning is true."
+  value       = local.vm_scanner_member
+}
+
+output "vm_scanner_role_name" {
+  description = "Full resource name of the VM scanner custom role when enable_vm_scanning is true."
+  value       = try(google_organization_iam_custom_role.vm_scanner[0].name, null)
+}
+
+output "vm_scanner_role_id" {
+  description = "Role ID of the VM scanner custom role when enable_vm_scanning is true."
+  value       = try(google_organization_iam_custom_role.vm_scanner[0].role_id, null)
+}
+
+output "vm_scanner_delete_role_name" {
+  description = "Full resource name of the VM scanner delete custom role when enable_vm_scanning is true."
+  value       = try(google_organization_iam_custom_role.vm_scanner_delete[0].name, null)
+}
+
+output "vm_scanner_delete_role_id" {
+  description = "Role ID of the VM scanner delete custom role when enable_vm_scanning is true."
+  value       = try(google_organization_iam_custom_role.vm_scanner_delete[0].role_id, null)
+}

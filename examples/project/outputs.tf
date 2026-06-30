@@ -12,3 +12,13 @@ output "workload_identity_pool_provider_name" {
   description = "Full resource name of the Aikido AWS Workload Identity Provider."
   value       = module.aikido_project.workload_identity_pool_provider_name
 }
+
+output "vm_scanner_role_name" {
+  description = "Full resource name of the VM scanner custom role when enabled."
+  value       = module.aikido_project.vm_scanner_role_name
+}
+
+output "vm_scanner_delete_role_name" {
+  description = "Full resource name of the VM scanner delete custom role when enabled."
+  value       = module.aikido_project.vm_scanner_delete_role_name
+}

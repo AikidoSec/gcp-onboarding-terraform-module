@@ -51,6 +51,23 @@ locals {
 
   workload_identity_provider_audience = "//iam.googleapis.com/projects/${var.project_number}/locations/global/workloadIdentityPools/${var.workload_identity_pool_id}/providers/${var.workload_identity_pool_provider_id}"
 
+  vm_scanner_member = var.enable_vm_scanning ? "serviceAccount:${trimspace(var.gcp_vm_scanner_service_account_email)}" : null
+
+  vm_scanner_permissions = [
+    "compute.instances.list",
+    "compute.instanceGroups.get",
+    "compute.instanceGroups.list",
+    "compute.disks.createSnapshot",
+    "compute.disks.get",
+    "compute.snapshots.create",
+    "compute.snapshots.get",
+    "compute.snapshots.list",
+    "compute.snapshots.setLabels",
+    "compute.snapshots.useReadOnly",
+  ]
+
+  vm_scanner_delete_condition_expression = "resource.type == \"compute.googleapis.com/Snapshot\" && resource.name.extract(\"projects/{project}/global/snapshots/aik-snapshot-{snapshot}\") != \"\""
+
   credential_config = {
     type               = "external_account"
     audience           = local.workload_identity_provider_audience
@@ -119,4 +136,48 @@ resource "google_organization_iam_member" "aikido_artifact_registry_reader" {
   org_id = var.organization_id
   role   = "roles/artifactregistry.reader"
   member = each.value
+}
+
+resource "google_organization_iam_custom_role" "vm_scanner" {
+  count = var.enable_vm_scanning ? 1 : 0
+
+  org_id      = var.organization_id
+  role_id     = var.vm_scanner_role_id
+  title       = var.vm_scanner_role_title
+  description = var.vm_scanner_role_description
+  permissions = local.vm_scanner_permissions
+  stage       = "GA"
+}
+
+resource "google_organization_iam_custom_role" "vm_scanner_delete" {
+  count = var.enable_vm_scanning ? 1 : 0
+
+  org_id      = var.organization_id
+  role_id     = var.vm_scanner_delete_role_id
+  title       = var.vm_scanner_delete_role_title
+  description = var.vm_scanner_delete_role_description
+  permissions = ["compute.snapshots.delete"]
+  stage       = "GA"
+}
+
+resource "google_organization_iam_member" "vm_scanner_role_binding" {
+  count = var.enable_vm_scanning ? 1 : 0
+
+  org_id = var.organization_id
+  role   = google_organization_iam_custom_role.vm_scanner[0].name
+  member = local.vm_scanner_member
+}
+
+resource "google_organization_iam_member" "vm_scanner_delete_role_binding" {
+  count = var.enable_vm_scanning ? 1 : 0
+
+  org_id = var.organization_id
+  role   = google_organization_iam_custom_role.vm_scanner_delete[0].name
+  member = local.vm_scanner_member
+
+  condition {
+    title       = "AikidoSnapshotDeleteOnly"
+    expression  = local.vm_scanner_delete_condition_expression
+    description = "Allow deletion only for Aikido-managed snapshots."
+  }
 }

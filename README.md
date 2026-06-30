@@ -9,6 +9,13 @@ Two modules are provided depending on your onboarding scope:
 | [`modules/project`](./modules/project) | Connecting a single GCP project |
 | [`modules/org`](./modules/org) | Connecting an entire GCP organization |
 
+Both modules support:
+- the base GCP cloud connection through Workload Identity Federation
+- optional Artifact Registry access
+- optional GCP VM scanning IAM for the Aikido-managed scanner service account
+
+The modules do **not** provision scanner-side infrastructure such as Cloud Build, Cloud Storage buckets, Artifact Registry repositories, or service account keys.
+
 ## modules/project
 
 Connects a single GCP project to Aikido. It:
@@ -17,6 +24,7 @@ Connects a single GCP project to Aikido. It:
 - Creates a Workload Identity Pool and AWS-backed provider in the project
 - Grants Aikido read-only IAM access at the **project** level (`roles/viewer`, `roles/iam.securityReviewer`)
 - Grants Artifact Registry read access for container scanning
+- Optionally creates project-scoped custom roles and bindings for GCP VM scanning
 
 ### Usage
 
@@ -29,26 +37,25 @@ module "aikido" {
 }
 ```
 
-### Inputs
+### Optional VM scanning
 
-| Name | Required | Default | Description |
-|------|----------|---------|-------------|
-| `project_id` | yes | — | GCP project ID to connect |
-| `project_number` | yes | — | GCP project number |
-| `project_roles` | no | `roles/viewer`, `roles/iam.securityReviewer` | Project-level IAM roles granted to Aikido |
-| `workload_identity_pool_id` | no | `aikido-identity-pool` | |
-| `workload_identity_pool_provider_id` | no | `aikido-aws-provider` | |
-| `disable_services_on_destroy` | no | `false` | Disable APIs when the module is destroyed |
+```hcl
+module "aikido" {
+  source = "github.com/AikidoSec/gcp-onboarding-terraform-module//modules/project"
 
-### Outputs
+  project_id     = "my-gcp-project"
+  project_number = "123456789"
 
-| Name | Description |
-|------|-------------|
-| `credential_config_json` | WIF credential config JSON to upload to Aikido |
-| `workload_identity_pool_name` | Full resource name of the Workload Identity Pool |
-| `workload_identity_pool_provider_name` | Full resource name of the AWS provider |
+  enable_vm_scanning                   = true
+  gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
+}
+```
 
----
+When enabled, the module creates:
+- `aikidoSecurityVmScannerRole`
+- `aikidoSecurityVmScannerSnapshotDeleteRole`
+
+and binds the provided Aikido-managed scanner service account at the project level. The delete role binding is conditioned so it only applies to snapshots whose name starts with `aik-snapshot-`.
 
 ## modules/org
 
@@ -61,8 +68,7 @@ It:
 - Creates a Workload Identity Pool and AWS-backed provider in the host project
 - Grants Aikido read-only IAM access at the **organization** level (`roles/viewer`, `roles/iam.securityReviewer`, `roles/resourcemanager.folderViewer`)
 - Optionally grants organization-level Artifact Registry read access for container scanning
-
-> **Note**: Folder include/exclude filtering is configured on the Aikido platform side, not via GCP IAM. The GCP resources provisioned by this module are the same regardless of which folders you choose to include or exclude in the Aikido UI.
+- Optionally creates organization-scoped custom roles and bindings for GCP VM scanning
 
 ### Usage
 
@@ -76,36 +82,33 @@ module "aikido" {
 }
 ```
 
-### Inputs
+### Optional VM scanning
 
-| Name | Required | Default | Description |
-|------|----------|---------|-------------|
-| `organization_id` | yes | — | GCP organization ID to connect |
-| `project_id` | yes | — | Host project ID (holds the Workload Identity Pool) |
-| `project_number` | yes | — | Host project number |
-| `enable_artifact_registry_reader` | no | `false` | Grant org-level Artifact Registry read access for container scanning |
-| `enable_host_project_services` | no | `false` | Enable the full set of Google APIs in the host project. The three APIs required for Workload Identity Federation (`iam.googleapis.com`, `iamcredentials.googleapis.com`, `sts.googleapis.com`) are always enabled regardless of this setting |
-| `org_roles` | no | `roles/viewer`, `roles/iam.securityReviewer`, `roles/resourcemanager.folderViewer` | Org-level IAM roles granted to Aikido |
-| `workload_identity_pool_id` | no | `aikido-identity-pool` | |
-| `workload_identity_pool_provider_id` | no | `aikido-aws-provider` | |
-| `disable_services_on_destroy` | no | `false` | Disable APIs when the module is destroyed |
+```hcl
+module "aikido" {
+  source = "github.com/AikidoSec/gcp-onboarding-terraform-module//modules/org"
 
-### Outputs
+  organization_id = "1234567890"
+  project_id      = "my-host-project"
+  project_number  = "123456789"
 
-| Name | Description |
-|------|-------------|
-| `credential_config_json` | WIF credential config JSON to upload to Aikido |
-| `workload_identity_pool_name` | Full resource name of the Workload Identity Pool |
-| `workload_identity_pool_provider_name` | Full resource name of the AWS provider |
+  enable_vm_scanning                   = true
+  gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
+}
+```
 
----
+When enabled, the module creates:
+- `aikidoSecurityVmScannerRole`
+- `aikidoSecurityVmScannerSnapshotDeleteRole`
+
+and binds the provided Aikido-managed scanner service account at the organization level. The delete role binding is conditioned so it only applies to Aikido-managed snapshots.
 
 ## After applying
 
-Both modules output a `credential_config_json` value. Retrieve it and upload it to Aikido to complete the connection:
+Both modules output a `credential_config_json` value. Retrieve it and upload it to Aikido to complete the cloud connection:
 
 ```bash
 terraform output -raw credential_config_json > aikido-gcp-credentials.json
 ```
 
-Then upload `aikido-gcp-credentials.json` in the Aikido platform to finish the onboarding.
+If you enabled VM scanning, no bucket export setup or customer-side scanner service account key upload is required. The customer project only needs the IAM roles and bindings created by this module for the Aikido-managed scanner service account.

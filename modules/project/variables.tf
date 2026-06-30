@@ -80,3 +80,56 @@ variable "project_roles" {
     "roles/iam.securityReviewer",
   ]
 }
+
+variable "enable_vm_scanning" {
+  description = "Whether to provision the IAM roles and bindings required for GCP VM scanning."
+  type        = bool
+  default     = false
+}
+
+variable "gcp_vm_scanner_service_account_email" {
+  description = "Email of the Aikido-managed GCP VM scanner service account that should receive VM scanning access."
+  type        = string
+  default     = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
+
+  validation {
+    condition     = !var.enable_vm_scanning || trimspace(var.gcp_vm_scanner_service_account_email) != ""
+    error_message = "gcp_vm_scanner_service_account_email must be set when enable_vm_scanning is true."
+  }
+}
+
+variable "vm_scanner_role_id" {
+  description = "ID for the custom role that grants Aikido VM scanning access."
+  type        = string
+  default     = "aikidoSecurityVmScannerRole"
+}
+
+variable "vm_scanner_role_title" {
+  description = "Title for the custom role that grants Aikido VM scanning access."
+  type        = string
+  default     = "Aikido Security VM Scanner Role"
+}
+
+variable "vm_scanner_role_description" {
+  description = "Description for the custom role that grants Aikido VM scanning access."
+  type        = string
+  default     = "Permissions required for Aikido VM snapshot scanning"
+}
+
+variable "vm_scanner_delete_role_id" {
+  description = "ID for the custom role that grants Aikido permission to delete only its own VM snapshots."
+  type        = string
+  default     = "aikidoSecurityVmScannerSnapshotDeleteRole"
+}
+
+variable "vm_scanner_delete_role_title" {
+  description = "Title for the custom role that grants Aikido permission to delete only its own VM snapshots."
+  type        = string
+  default     = "Aikido Security VM Scanner Snapshot Delete Role"
+}
+
+variable "vm_scanner_delete_role_description" {
+  description = "Description for the custom role that grants Aikido permission to delete only its own VM snapshots."
+  type        = string
+  default     = "Delete permissions for Aikido-managed VM snapshots"
+}

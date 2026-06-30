@@ -13,3 +13,9 @@ host_project_number = "123456789"
 
 # Enable artifact registry scanning (disabled by default)
 enable_artifact_registry_reader = false
+
+# Enable GCP VM scanning IAM (disabled by default)
+enable_vm_scanning = false
+
+# Required when enable_vm_scanning = true
+gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
