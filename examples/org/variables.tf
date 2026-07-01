@@ -13,6 +13,12 @@ variable "host_project_number" {
   type        = string
 }
 
+variable "aikido_region" {
+  description = "Aikido instance region."
+  type        = string
+  default     = "eu"
+}
+
 variable "enable_artifact_registry_reader" {
   description = "Whether to grant Artifact Registry read access."
   type        = bool

@@ -11,6 +11,9 @@ host_project_id = "your-host-project-id"
 # Find with: gcloud projects describe your-host-project-id --format='value(projectNumber)'
 host_project_number = "123456789"
 
+# Aikido instance region: eu, us, me, or au
+aikido_region = "eu"
+
 # Enable artifact registry scanning (disabled by default)
 enable_artifact_registry_reader = false
 

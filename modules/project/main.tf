@@ -1,4 +1,27 @@
 locals {
+  aikido_defaults_by_region = {
+    eu = {
+      aws_account_id              = "881830977366"
+      project_role_arns           = toset(["arn:aws:sts::881830977366:assumed-role/lambda-gcp-cloud-findings-role-1muvqxle"])
+      artifact_registry_role_arns = toset(["arn:aws:sts::881830977366:assumed-role/lambda-container-image-scanner-role-pb0qotst"])
+    }
+    us = {
+      aws_account_id              = "881830977366"
+      project_role_arns           = toset(["arn:aws:sts::881830977366:assumed-role/lambda-gcp-cloud-findings-us-east-1"])
+      artifact_registry_role_arns = toset(["arn:aws:sts::881830977366:assumed-role/lambda-container-image-scanner-us-east-1"])
+    }
+    me = {
+      aws_account_id              = "881830977366"
+      project_role_arns           = toset(["arn:aws:sts::881830977366:assumed-role/lambda-gcp-cloud-findings-me-central-1"])
+      artifact_registry_role_arns = toset(["arn:aws:sts::881830977366:assumed-role/lambda-container-image-scanner-me-central-1"])
+    }
+    au = {
+      aws_account_id              = "881830977366"
+      project_role_arns           = toset(["arn:aws:sts::881830977366:assumed-role/lambda-gcp-cloud-findings-ap-southeast-2"])
+      artifact_registry_role_arns = toset(["arn:aws:sts::881830977366:assumed-role/lambda-container-image-scanner-isolated-role-ap-southeast-2"])
+    }
+  }
+
   base_required_services = toset([
     "appengine.googleapis.com",
     "artifactregistry.googleapis.com",
@@ -20,15 +43,21 @@ locals {
 
   required_services = local.base_required_services
 
+  aikido_aws_account_id = coalesce(var.aikido_aws_account_id, local.aikido_defaults_by_region[var.aikido_region].aws_account_id)
+
+  aikido_project_role_arns = var.aikido_project_role_arns != null ? var.aikido_project_role_arns : local.aikido_defaults_by_region[var.aikido_region].project_role_arns
+
+  aikido_artifact_registry_role_arns = var.aikido_artifact_registry_role_arns != null ? var.aikido_artifact_registry_role_arns : local.aikido_defaults_by_region[var.aikido_region].artifact_registry_role_arns
+
   principal_prefix = "principalSet://iam.googleapis.com/projects/${var.project_number}/locations/global/workloadIdentityPools/${var.workload_identity_pool_id}/attribute.aws_role"
 
   project_principal_members = {
-    for arn in var.aikido_project_role_arns :
+    for arn in local.aikido_project_role_arns :
     arn => "${local.principal_prefix}/${arn}"
   }
 
   artifact_registry_principal_members = {
-    for arn in var.aikido_artifact_registry_role_arns :
+    for arn in local.aikido_artifact_registry_role_arns :
     arn => "${local.principal_prefix}/${arn}"
   }
 
@@ -113,7 +142,7 @@ resource "google_iam_workload_identity_pool_provider" "aikido_aws" {
   }
 
   aws {
-    account_id = var.aikido_aws_account_id
+    account_id = local.aikido_aws_account_id
   }
 }
 

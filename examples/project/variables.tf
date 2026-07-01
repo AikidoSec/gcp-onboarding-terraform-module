@@ -8,6 +8,12 @@ variable "project_number" {
   type        = string
 }
 
+variable "aikido_region" {
+  description = "Aikido instance region."
+  type        = string
+  default     = "eu"
+}
+
 variable "enable_vm_scanning" {
   description = "Whether to provision IAM roles and bindings for GCP VM scanning."
   type        = bool

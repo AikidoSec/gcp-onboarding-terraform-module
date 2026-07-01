@@ -4,17 +4,27 @@ Terraform modules for connecting Google Cloud to Aikido using Workload Identity 
 
 Two modules are provided depending on your onboarding scope:
 
-| Module | Use when |
-|--------|----------|
-| [`modules/project`](./modules/project) | Connecting a single GCP project |
-| [`modules/org`](./modules/org) | Connecting an entire GCP organization |
+| Module                                 | Use when                              |
+| -------------------------------------- | ------------------------------------- |
+| [`modules/project`](./modules/project) | Connecting a single GCP project       |
+| [`modules/org`](./modules/org)         | Connecting an entire GCP organization |
 
 Both modules support:
+
 - the base GCP cloud connection through Workload Identity Federation
 - optional Artifact Registry access
 - optional GCP VM scanning IAM for the Aikido-managed scanner service account
 
 The modules do **not** provision scanner-side infrastructure such as Cloud Build, Cloud Storage buckets, Artifact Registry repositories, or service account keys.
+
+For the WIF-based cloud connection, both modules support multiple Aikido instances through `aikido_region`:
+
+- `eu` (default, `app.aikido.dev`)
+- `us` (`app.us.aikido.dev`)
+- `me` (`app.me.aikido.dev`)
+- `au` (`app.au.aikido.dev`)
+
+This selects the default Aikido AWS principals used for CSPM and Artifact Registry access. You can still override the raw AWS account ID and role ARNs explicitly if needed.
 
 ## modules/project
 
@@ -34,6 +44,7 @@ module "aikido" {
 
   project_id     = "my-gcp-project"
   project_number = "123456789"
+  aikido_region  = "eu"
 }
 ```
 
@@ -45,6 +56,7 @@ module "aikido" {
 
   project_id     = "my-gcp-project"
   project_number = "123456789"
+  aikido_region  = "us"
 
   enable_vm_scanning                   = true
   gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
@@ -52,6 +64,7 @@ module "aikido" {
 ```
 
 When enabled, the module creates:
+
 - `aikidoSecurityVmScannerRole`
 - `aikidoSecurityVmScannerSnapshotDeleteRole`
 
@@ -79,6 +92,7 @@ module "aikido" {
   organization_id = "1234567890"
   project_id      = "my-host-project"
   project_number  = "123456789"
+  aikido_region   = "eu"
 }
 ```
 
@@ -91,6 +105,7 @@ module "aikido" {
   organization_id = "1234567890"
   project_id      = "my-host-project"
   project_number  = "123456789"
+  aikido_region   = "us"
 
   enable_vm_scanning                   = true
   gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
@@ -98,6 +113,7 @@ module "aikido" {
 ```
 
 When enabled, the module creates:
+
 - `aikidoSecurityVmScannerRole`
 - `aikidoSecurityVmScannerSnapshotDeleteRole`
 

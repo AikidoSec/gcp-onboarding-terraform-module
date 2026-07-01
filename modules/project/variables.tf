@@ -50,26 +50,33 @@ variable "workload_identity_pool_provider_description" {
   default     = "Workload Identity Provider for Aikido Security's AWS account"
 }
 
-variable "aikido_aws_account_id" {
-  description = "Aikido's AWS account ID used to scope the Workload Identity Provider."
+variable "aikido_region" {
+  description = "Aikido instance region. Controls the default AWS principals used for the GCP cloud connection. Valid values: \"eu\" (default, app.aikido.dev), \"us\" (app.us.aikido.dev), \"me\" (app.me.aikido.dev), \"au\" (app.au.aikido.dev)."
   type        = string
-  default     = "881830977366"
+  default     = "eu"
+
+  validation {
+    condition     = contains(["eu", "us", "me", "au"], var.aikido_region)
+    error_message = "aikido_region must be one of: \"eu\", \"us\", \"me\", \"au\"."
+  }
+}
+
+variable "aikido_aws_account_id" {
+  description = "Aikido's AWS account ID used to scope the Workload Identity Provider. Overrides the account selected by aikido_region when set."
+  type        = string
+  default     = null
 }
 
 variable "aikido_project_role_arns" {
-  description = "Aikido AWS role ARNs that should receive project-level read access for cloud scanning."
+  description = "Aikido AWS role ARNs that should receive project-level read access for cloud scanning. Overrides the defaults selected by aikido_region when set."
   type        = set(string)
-  default = [
-    "arn:aws:sts::881830977366:assumed-role/lambda-gcp-cloud-findings-role-1muvqxle",
-  ]
+  default     = null
 }
 
 variable "aikido_artifact_registry_role_arns" {
-  description = "Aikido AWS role ARNs that should receive Artifact Registry read access for container scanning."
+  description = "Aikido AWS role ARNs that should receive Artifact Registry read access for container scanning. Overrides the defaults selected by aikido_region when set."
   type        = set(string)
-  default = [
-    "arn:aws:sts::881830977366:assumed-role/lambda-container-image-scanner-role-pb0qotst",
-  ]
+  default     = null
 }
 
 variable "project_roles" {

@@ -8,6 +8,13 @@ It supports:
 - optional Artifact Registry access
 - optional project-scoped GCP VM scanning IAM for the Aikido-managed scanner service account
 
+Set `aikido_region` to choose the default Aikido AWS principals used by the Workload Identity Provider:
+
+- `eu` (default, `app.aikido.dev`)
+- `us` (`app.us.aikido.dev`)
+- `me` (`app.me.aikido.dev`)
+- `au` (`app.au.aikido.dev`)
+
 When `enable_vm_scanning = true`, the module:
 
 - enables `compute.googleapis.com`

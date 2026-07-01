@@ -5,6 +5,7 @@ module "aikido_org" {
   project_id      = var.host_project_id
   project_number  = var.host_project_number
 
+  aikido_region                        = var.aikido_region
   enable_artifact_registry_reader      = var.enable_artifact_registry_reader
   enable_vm_scanning                   = var.enable_vm_scanning
   gcp_vm_scanner_service_account_email = var.gcp_vm_scanner_service_account_email

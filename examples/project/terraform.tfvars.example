@@ -6,6 +6,9 @@ project_id = "your-project-id"
 # GCP project number (find with: gcloud projects describe your-project-id --format='value(projectNumber)')
 project_number = "123456789"
 
+# Aikido instance region: eu, us, me, or au
+aikido_region = "eu"
+
 # Enable GCP VM scanning IAM (disabled by default)
 enable_vm_scanning = false
 
