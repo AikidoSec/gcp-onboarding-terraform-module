@@ -9,5 +9,5 @@ project_number = "123456789"
 # Enable GCP VM scanning IAM (disabled by default)
 enable_vm_scanning = false
 
-# Required when enable_vm_scanning = true
+# Optional override when enable_vm_scanning = true
 gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"

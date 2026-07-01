@@ -17,5 +17,5 @@ variable "enable_vm_scanning" {
 variable "gcp_vm_scanner_service_account_email" {
   description = "Email of the Aikido-managed GCP VM scanner service account."
   type        = string
-  default     = ""
+  default     = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
 }
