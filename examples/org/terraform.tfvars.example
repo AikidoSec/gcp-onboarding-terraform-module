@@ -1,0 +1,24 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# GCP organization ID to connect to Aikido
+# Find with: gcloud organizations list
+organization_id = "1234567890"
+
+# GCP project ID that will host the Workload Identity Pool
+host_project_id = "your-host-project-id"
+
+# GCP project number for the host project
+# Find with: gcloud projects describe your-host-project-id --format='value(projectNumber)'
+host_project_number = "123456789"
+
+# Aikido instance region: eu, us, me, or au
+aikido_region = "eu"
+
+# Enable artifact registry scanning (disabled by default)
+enable_artifact_registry_reader = false
+
+# Enable GCP VM scanning IAM (disabled by default)
+enable_vm_scanning = false
+
+# Optional override when enable_vm_scanning = true
+gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"

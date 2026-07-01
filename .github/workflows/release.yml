@@ -1,0 +1,134 @@
+name: Release Module
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: open-source-releaser
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: 1.14.9
+
+      - name: Validate Terraform modules
+        run: |
+          cd modules/project && terraform init -backend=false && terraform validate
+          cd ../../modules/org && terraform init -backend=false && terraform validate
+
+      - name: Generate Changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@0440d0932f9a0dd1cc9ecd8412830761351323bd # v4
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create module archive
+        run: |
+          git archive --format=zip --output=aikido-gcp-terraform-module-${{ steps.version.outputs.VERSION }}.zip ${{ github.ref_name }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Aikido Security GCP Integration Terraform Module ${{ github.ref_name }}
+
+            ### Usage — Single Project
+
+            ```hcl
+            module "aikido_project" {
+              source = "github.com/${{ github.repository }}//modules/project?ref=${{ github.ref_name }}"
+
+              project_id     = "your-gcp-project-id"
+              project_number = "123456789"
+            }
+            ```
+
+            ### Usage — Organization
+
+            ```hcl
+            module "aikido_org" {
+              source = "github.com/${{ github.repository }}//modules/org?ref=${{ github.ref_name }}"
+
+              organization_id = "1234567890"
+              project_id      = "your-host-project-id"
+              project_number  = "123456789"
+            }
+            ```
+
+            ### What's Changed
+            ${{ steps.changelog.outputs.changelog }}
+
+            ### Installation Methods
+
+            **Option 1: GitHub Source (Recommended)**
+            ```hcl
+            module "aikido" {
+              source = "github.com/${{ github.repository }}//modules/project?ref=${{ github.ref_name }}"
+              # ... configuration
+            }
+            ```
+
+            **Option 2: Download Release Archive**
+            ```bash
+            curl -LO https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/aikido-gcp-terraform-module-${{ steps.version.outputs.VERSION }}.zip
+            unzip aikido-gcp-terraform-module-${{ steps.version.outputs.VERSION }}.zip
+            ```
+
+            ### Documentation
+
+            - [README](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/README.md)
+            - [Examples](https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}/examples)
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name,
+            '-beta') || contains(github.ref_name, '-alpha') }}
+          generate_release_notes: true
+          files: |
+            aikido-gcp-terraform-module-${{ steps.version.outputs.VERSION }}.zip
+
+  validate-release:
+    name: Validate Release
+    runs-on: open-source-releaser
+    needs: release
+
+    steps:
+      - name: Checkout at tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: 1.14.9
+
+      - name: Validate modules
+        run: |
+          cd modules/project && terraform init -backend=false && terraform validate
+          cd ../../modules/org && terraform init -backend=false && terraform validate
+
+      - name: Validate examples
+        run: |
+          cd examples/project && terraform init -backend=false && terraform validate
+          cd ../../examples/org && terraform init -backend=false && terraform validate
+
+      - name: Post validation results
+        if: always()
+        run: |
+          echo "Release validation completed for ${{ github.ref_name }}"

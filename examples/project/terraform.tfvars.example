@@ -1,0 +1,16 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# GCP project ID to connect to Aikido
+project_id = "your-project-id"
+
+# GCP project number (find with: gcloud projects describe your-project-id --format='value(projectNumber)')
+project_number = "123456789"
+
+# Aikido instance region: eu, us, me, or au
+aikido_region = "eu"
+
+# Enable GCP VM scanning IAM (disabled by default)
+enable_vm_scanning = false
+
+# Optional override when enable_vm_scanning = true
+gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
