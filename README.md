@@ -24,7 +24,7 @@ For the WIF-based cloud connection, both modules support multiple Aikido instanc
 - `me` (`app.me.aikido.dev`)
 - `au` (`app.au.aikido.dev`)
 
-This selects the default Aikido AWS principals used for CSPM and Artifact Registry access. You can still override the raw AWS account ID and role ARNs explicitly if needed.
+Set `aikido_region` to the Aikido app region your account is on. If you use the default EU region (`app.aikido.dev`), you can omit it. This selects the default Aikido AWS principals used for CSPM and Artifact Registry access, and you can still override the raw AWS account ID and role ARNs explicitly if needed.
 
 ## modules/project
 

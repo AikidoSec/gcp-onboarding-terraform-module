@@ -22,5 +22,3 @@ When `enable_vm_scanning = true`, the module:
 - creates the custom role `aikidoSecurityVmScannerSnapshotDeleteRole`
 - binds the provided managed scanner service account to both roles
 - applies a condition on the delete role binding so it only matches snapshots named `aik-snapshot-*`
-
-The module does not create any scanner-side buckets, Cloud Build jobs, service account keys, or Artifact Registry repositories.
