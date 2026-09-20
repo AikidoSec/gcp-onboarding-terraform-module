@@ -13,6 +13,16 @@ output "workload_identity_provider_audience" {
   value       = local.workload_identity_provider_audience
 }
 
+output "access_mode" {
+  description = "The access mode this module was applied with."
+  value       = var.access_mode
+}
+
+output "impersonation_service_account_email" {
+  description = "Email of the service account Aikido impersonates when access_mode = \"impersonation\"."
+  value       = local.impersonation_service_account_email
+}
+
 output "credential_config_json" {
   description = "Workload Identity Federation credential config JSON to upload to Aikido."
   value       = jsonencode(local.credential_config)

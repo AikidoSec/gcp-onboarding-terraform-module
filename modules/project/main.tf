@@ -23,10 +23,12 @@ locals {
   }
 
   base_required_services = toset([
+    "apikeys.googleapis.com",
     "appengine.googleapis.com",
     "artifactregistry.googleapis.com",
     "bigquery.googleapis.com",
     "cloudkms.googleapis.com",
+    "cloudfunctions.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
@@ -35,6 +37,7 @@ locals {
     "iamcredentials.googleapis.com",
     "logging.googleapis.com",
     "monitoring.googleapis.com",
+    "run.googleapis.com",
     "sqladmin.googleapis.com",
     "storage.googleapis.com",
     "storage-component.googleapis.com",
@@ -61,9 +64,38 @@ locals {
     arn => "${local.principal_prefix}/${arn}"
   }
 
+  use_impersonation       = var.access_mode == "impersonation"
+  create_impersonation_sa = local.use_impersonation && var.impersonation_service_account_email == null
+
+  impersonation_service_account_email = !local.use_impersonation ? null : (
+    local.create_impersonation_sa
+    ? one(google_service_account.aikido[*].email)
+    : trimspace(var.impersonation_service_account_email)
+  )
+
+  # A caller-supplied service account may live in another project, so derive its
+  # project from the email domain rather than assuming var.project_id.
+  impersonation_service_account_name = !local.use_impersonation ? null : (
+    local.create_impersonation_sa
+    ? one(google_service_account.aikido[*].name)
+    : "projects/${split(".", split("@", local.impersonation_service_account_email)[1])[0]}/serviceAccounts/${local.impersonation_service_account_email}"
+  )
+
+  impersonation_member = local.use_impersonation ? {
+    impersonation = "serviceAccount:${local.impersonation_service_account_email}"
+  } : {}
+
+  # Federated principals allowed to impersonate the service account.
+  impersonation_user_members = merge(local.project_principal_members, local.artifact_registry_principal_members)
+
+  # Members that receive the read-only IAM roles: either the impersonated service
+  # account, or the federated AWS principals directly.
+  project_role_members           = local.use_impersonation ? local.impersonation_member : local.project_principal_members
+  artifact_registry_role_members = local.use_impersonation ? local.impersonation_member : local.artifact_registry_principal_members
+
   project_role_bindings = {
     for binding in flatten([
-      for arn, member in local.project_principal_members : [
+      for arn, member in local.project_role_members : [
         for role in var.project_roles : {
           key    = "${arn}:${role}"
           member = member
@@ -92,7 +124,7 @@ locals {
 
   vm_scanner_delete_condition_expression = "resource.type == \"compute.googleapis.com/Snapshot\" && resource.name.startsWith(\"projects/${var.project_id}/global/snapshots/aik-snapshot-\")"
 
-  credential_config = {
+  credential_config_base = {
     type               = "external_account"
     audience           = local.workload_identity_provider_audience
     subject_token_type = "urn:ietf:params:aws:token-type:aws4_request"
@@ -106,6 +138,18 @@ locals {
       url                            = "http://169.254.169.254/latest/meta-data/iam/security-credentials"
     }
   }
+
+  credential_config = merge(
+    local.credential_config_base,
+    local.use_impersonation ? {
+      service_account_impersonation_url = "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${local.impersonation_service_account_email}:generateAccessToken"
+    } : {},
+    local.use_impersonation && var.impersonation_token_lifetime_seconds != null ? {
+      service_account_impersonation = {
+        token_lifetime_seconds = var.impersonation_token_lifetime_seconds
+      }
+    } : {},
+  )
 }
 
 resource "google_project_service" "required" {
@@ -146,6 +190,25 @@ resource "google_iam_workload_identity_pool_provider" "aikido_aws" {
   }
 }
 
+resource "google_service_account" "aikido" {
+  count = local.create_impersonation_sa ? 1 : 0
+
+  project      = var.project_id
+  account_id   = var.impersonation_service_account_id
+  display_name = var.impersonation_service_account_display_name
+  description  = var.impersonation_service_account_description
+
+  depends_on = [google_project_service.required["iam.googleapis.com"]]
+}
+
+resource "google_service_account_iam_member" "aikido_workload_identity_user" {
+  for_each = local.use_impersonation ? local.impersonation_user_members : {}
+
+  service_account_id = local.impersonation_service_account_name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = each.value
+}
+
 resource "google_project_iam_member" "aikido_project_roles" {
   for_each = local.project_role_bindings
 
@@ -155,7 +218,7 @@ resource "google_project_iam_member" "aikido_project_roles" {
 }
 
 resource "google_project_iam_member" "aikido_artifact_registry_reader" {
-  for_each = local.artifact_registry_principal_members
+  for_each = local.artifact_registry_role_members
 
   project = var.project_id
   role    = "roles/artifactregistry.reader"
