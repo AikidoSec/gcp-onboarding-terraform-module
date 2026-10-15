@@ -17,6 +17,8 @@ Both modules support:
 
 The modules do **not** provision scanner-side infrastructure such as Cloud Build, Cloud Storage buckets, Artifact Registry repositories, or service account keys.
 
+See the [changelog](./CHANGELOG.md) for release notes and upgrade instructions.
+
 For the WIF-based cloud connection, both modules support multiple Aikido instances through `aikido_region`:
 
 - `eu` (default, `app.aikido.dev`)

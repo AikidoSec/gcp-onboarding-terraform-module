@@ -95,7 +95,7 @@ locals {
     "compute.snapshots.useReadOnly",
   ]
 
-  vm_scanner_delete_condition_expression = "resource.type == \"compute.googleapis.com/Snapshot\" && resource.name.extract(\"projects/{project}/global/snapshots/aik-snapshot-{snapshot}\") != \"\""
+  vm_scanner_delete_condition_expression = "resource.type == \"compute.googleapis.com/Snapshot\" && resource.name.extract(\"/global/snapshots/{name}\").startsWith(\"aik-snapshot-\")"
 
   credential_config = {
     type               = "external_account"
