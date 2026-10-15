@@ -106,6 +106,52 @@ variable "enable_artifact_registry_reader" {
   default     = false
 }
 
+variable "access_mode" {
+  description = "How Aikido accesses this organization through Workload Identity Federation. \"direct\" grants the read-only IAM roles straight to Aikido's federated AWS principals. \"impersonation\" grants them to a service account that Aikido's principals impersonate, which is required for Google APIs that do not accept federated identities directly (for example App Engine)."
+  type        = string
+  default     = "direct"
+
+  validation {
+    condition     = contains(["direct", "impersonation"], var.access_mode)
+    error_message = "access_mode must be one of: \"direct\", \"impersonation\"."
+  }
+}
+
+variable "impersonation_service_account_email" {
+  description = "Email of an existing service account for Aikido to impersonate when access_mode = \"impersonation\". When null, the module creates one in the host project."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.impersonation_service_account_email == null || can(regex("^[^@]+@[^@.]+\\.iam\\.gserviceaccount\\.com$", trimspace(var.impersonation_service_account_email)))
+    error_message = "impersonation_service_account_email must be a service account email of the form NAME@PROJECT_ID.iam.gserviceaccount.com."
+  }
+}
+
+variable "impersonation_service_account_id" {
+  description = "Account ID of the service account created for impersonation. Ignored when impersonation_service_account_email is set."
+  type        = string
+  default     = "aikido-cloud-security"
+}
+
+variable "impersonation_service_account_display_name" {
+  description = "Display name of the service account created for impersonation."
+  type        = string
+  default     = "Aikido Cloud Security"
+}
+
+variable "impersonation_service_account_description" {
+  description = "Description of the service account created for impersonation."
+  type        = string
+  default     = "Service account impersonated by Aikido Security for cloud scanning"
+}
+
+variable "impersonation_token_lifetime_seconds" {
+  description = "Optional access token lifetime, in seconds, written into the credential config when access_mode = \"impersonation\". Leave null to use Google's default."
+  type        = number
+  default     = null
+}
+
 variable "enable_vm_scanning" {
   description = "Whether to provision the IAM roles and bindings required for GCP VM scanning."
   type        = bool

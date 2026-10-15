@@ -11,7 +11,7 @@ Two modules are provided depending on your onboarding scope:
 
 Both modules support:
 
-- the base GCP cloud connection through Workload Identity Federation
+- the base GCP cloud connection through Workload Identity Federation, with either direct access or access through service account impersonation (`access_mode`)
 - optional Artifact Registry access
 - optional GCP VM scanning IAM for the Aikido-managed scanner service account
 
@@ -27,6 +27,27 @@ For the WIF-based cloud connection, both modules support multiple Aikido instanc
 - `au` (`app.au.aikido.dev`)
 
 Set `aikido_region` to the Aikido app region your account is on. If you use the default EU region (`app.aikido.dev`), you can omit it. This selects the default Aikido AWS principals used for CSPM and Artifact Registry access, and you can still override the raw AWS account ID and role ARNs explicitly if needed.
+
+## Access modes
+
+`access_mode` selects how Aikido's federated AWS principals get access:
+
+- `direct` (default) — the read-only IAM roles are bound straight to the federated principals (`principalSet://…/attribute.aws_role/<arn>`).
+- `impersonation` — the roles are bound to a service account instead, and the federated principals are granted `roles/iam.workloadIdentityUser` on it.
+
+Use `impersonation` for organizations whose resources sit behind Google APIs that reject federated identities directly, such as App Engine. The module creates the service account by default; set `impersonation_service_account_email` to reuse an existing one.
+
+```hcl
+module "aikido" {
+  source = "github.com/AikidoSec/gcp-onboarding-terraform-module//modules/project"
+
+  project_id     = "my-gcp-project"
+  project_number = "123456789"
+  aikido_region  = "eu"
+
+  access_mode = "impersonation"
+}
+```
 
 ## modules/project
 
