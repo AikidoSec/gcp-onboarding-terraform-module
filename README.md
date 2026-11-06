@@ -2,6 +2,8 @@
 
 Terraform modules for connecting Google Cloud to Aikido using Workload Identity Federation.
 
+Both modules allow Google provider versions 7.x and 8.x (`>= 7.0, < 9.0`).
+
 Two modules are provided depending on your onboarding scope:
 
 | Module                                 | Use when                              |

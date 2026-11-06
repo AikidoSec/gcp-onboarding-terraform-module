@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Allow Google provider versions 7.x and 8.x in both modules and examples.
+
 ## v1.0.1
 
 ### Fixed
