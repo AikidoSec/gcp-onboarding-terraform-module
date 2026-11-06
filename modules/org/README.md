@@ -45,3 +45,32 @@ When `enable_vm_scanning = true`, the module:
 - creates the custom role `aikidoSecurityVmScannerSnapshotDeleteRole`
 - binds the provided managed scanner service account to both roles at the organization level
 - applies a condition on the delete role binding so it only matches Aikido-managed snapshots
+
+## Authoritative IAM bindings
+
+For roles managed by `google_organization_iam_binding`, exclude them from `org_roles` and add `org_principal_members` to your existing binding, preserving all other members. Do not manage the same role with both binding and member resources.
+
+The output contains cloud-scanning federated principals in `direct` mode or the service account member in `impersonation` mode, even when `org_roles = []`.
+
+```hcl
+module "aikido" {
+  source = "github.com/AikidoSec/gcp-onboarding-terraform-module//modules/org"
+
+  organization_id = "1234567890"
+  project_id      = "my-host-project"
+  project_number  = "123456789"
+  org_roles       = ["roles/viewer", "roles/resourcemanager.folderViewer"]
+}
+
+# Update your existing binding.
+resource "google_organization_iam_binding" "security_reviewers" {
+  org_id  = "1234567890"
+  role    = "roles/iam.securityReviewer"
+  members = concat(
+    ["group:security@example.com"], # Keep all existing members.
+    module.aikido.org_principal_members,
+  )
+}
+```
+
+When migrating existing module-managed grants, back up your state and use `terraform state rm` on only the affected `google_organization_iam_member.aikido_org_roles` instances before applying the configuration above. Removing them from `org_roles` alone revokes their grants. Review the plan to ensure the binding retains all members and no migrated member resources will be destroyed.

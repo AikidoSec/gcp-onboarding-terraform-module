@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- `org_principal_members` output for authoritative organization IAM bindings in both access modes.
+
 ### Changed
 
 - Allow Google provider versions 7.x and 8.x in both modules and examples.

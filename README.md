@@ -127,6 +127,10 @@ module "aikido" {
 }
 ```
 
+### Authoritative IAM bindings
+
+Already using `google_organization_iam_binding`? See the [organization module's binding example and migration guidance](./modules/org#authoritative-iam-bindings).
+
 ### Optional VM scanning
 
 ```hcl
