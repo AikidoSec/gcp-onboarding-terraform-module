@@ -5,10 +5,12 @@
 ### Added
 
 - `org_principal_members` output for authoritative organization IAM bindings in both access modes.
+- Host-project services option in the organization example and credential verification guidance.
 
 ### Changed
 
 - Allow Google provider versions 7.x and 8.x in both modules and examples.
+- Enable host-project scanning APIs and container access in organization examples. Module defaults are unchanged.
 
 ### Fixed
 

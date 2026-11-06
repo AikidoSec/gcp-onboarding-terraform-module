@@ -124,8 +124,18 @@ module "aikido" {
   project_id      = "my-host-project"
   project_number  = "123456789"
   aikido_region   = "eu"
+
+  enable_host_project_services    = true
+  enable_artifact_registry_reader = true
 }
 ```
+
+### Credential verification
+
+- `enable_host_project_services = true` enables scanning APIs in the host project, including Artifact Registry and BigQuery. Enabling APIs in other projects does not enable them here.
+- `enable_artifact_registry_reader = true` grants access for container scanning.
+
+Both settings default to `false`. Credential verification uses the cloud-scanning identity and checks Artifact Registry and BigQuery for CSPM, or just Artifact Registry for container connections, even without repositories or datasets. If verification fails, check the APIs and IAM permissions in the project being verified, apply any fixes, and retry.
 
 ### Authoritative IAM bindings
 
@@ -141,6 +151,9 @@ module "aikido" {
   project_id      = "my-host-project"
   project_number  = "123456789"
   aikido_region   = "us"
+
+  enable_host_project_services    = true
+  enable_artifact_registry_reader = true
 
   enable_vm_scanning                   = true
   gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"

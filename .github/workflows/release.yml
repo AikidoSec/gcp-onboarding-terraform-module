@@ -69,6 +69,9 @@ jobs:
               organization_id = "1234567890"
               project_id      = "your-host-project-id"
               project_number  = "123456789"
+
+              enable_host_project_services    = true
+              enable_artifact_registry_reader = true
             }
             ```
 

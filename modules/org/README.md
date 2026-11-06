@@ -46,6 +46,10 @@ When `enable_vm_scanning = true`, the module:
 - binds the provided managed scanner service account to both roles at the organization level
 - applies a condition on the delete role binding so it only matches Aikido-managed snapshots
 
+## Credential verification
+
+Enable `enable_host_project_services` for host-project scanning APIs and `enable_artifact_registry_reader` for container scanning access. Both default to `false`. See [credential verification](../../README.md#credential-verification) and the [organization example](../../examples/org).
+
 ## Authoritative IAM bindings
 
 For roles managed by `google_organization_iam_binding`, exclude them from `org_roles` and add `org_principal_members` to your existing binding, preserving all other members. Do not manage the same role with both binding and member resources.
