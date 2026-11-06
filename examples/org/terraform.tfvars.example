@@ -17,6 +17,9 @@ aikido_region = "eu"
 # Enable artifact registry scanning (disabled by default)
 enable_artifact_registry_reader = false
 
+# Access mode: "direct" (default) or "impersonation" (required for APIs such as App Engine)
+access_mode = "direct"
+
 # Enable GCP VM scanning IAM (disabled by default)
 enable_vm_scanning = false
 

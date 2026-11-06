@@ -106,6 +106,61 @@ variable "enable_artifact_registry_reader" {
   default     = false
 }
 
+variable "access_mode" {
+  description = "How Aikido accesses this organization: \"direct\" or service account \"impersonation\" for APIs such as App Engine. When Artifact Registry access is enabled, impersonation shares the service account's roles between cloud and container scanning."
+  type        = string
+  default     = "direct"
+
+  validation {
+    condition     = contains(["direct", "impersonation"], var.access_mode)
+    error_message = "access_mode must be one of: \"direct\", \"impersonation\"."
+  }
+}
+
+variable "impersonation_service_account_email" {
+  description = "Email of an existing service account for Aikido to impersonate when access_mode = \"impersonation\". When null, the module creates one in the host project. For a cross-project service account, enable iamcredentials.googleapis.com in its project first."
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.impersonation_service_account_email == null || can(regex("^[^@]+@[^@.]+\\.iam\\.gserviceaccount\\.com$", trimspace(var.impersonation_service_account_email)))
+    error_message = "impersonation_service_account_email must be a service account email of the form NAME@PROJECT_ID.iam.gserviceaccount.com."
+  }
+}
+
+variable "impersonation_service_account_id" {
+  description = "Account ID of the service account created for impersonation. Ignored when impersonation_service_account_email is set."
+  type        = string
+  default     = "aikido-cloud-security"
+}
+
+variable "impersonation_service_account_display_name" {
+  description = "Display name of the service account created for impersonation."
+  type        = string
+  default     = "Aikido Cloud Security"
+}
+
+variable "impersonation_service_account_description" {
+  description = "Description of the service account created for impersonation."
+  type        = string
+  default     = "Service account impersonated by Aikido Security for cloud scanning"
+}
+
+variable "impersonation_token_lifetime_seconds" {
+  description = "Optional impersonation token lifetime: an integer from 3600 to 43200 seconds. Values above 3600 require constraints/iam.allowServiceAccountCredentialLifetimeExtension for the service account. Leave null for Google's default of 3600."
+  type        = number
+  default     = null
+
+  validation {
+    condition = var.impersonation_token_lifetime_seconds == null ? true : (
+      var.impersonation_token_lifetime_seconds >= 3600 &&
+      var.impersonation_token_lifetime_seconds <= 43200 &&
+      floor(var.impersonation_token_lifetime_seconds) == var.impersonation_token_lifetime_seconds
+    )
+    error_message = "impersonation_token_lifetime_seconds must be null or an integer from 3600 to 43200. Values above 3600 require the service account credential lifetime extension policy."
+  }
+}
+
 variable "enable_vm_scanning" {
   description = "Whether to provision the IAM roles and bindings required for GCP VM scanning."
   type        = bool
