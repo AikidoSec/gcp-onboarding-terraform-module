@@ -6,6 +6,10 @@
 
 - Allow Google provider versions 7.x and 8.x in both modules and examples.
 
+### Fixed
+
+- Make IAM grants in both modules wait for the Workload Identity Pool, including impersonation grants.
+
 ## v1.0.1
 
 ### Fixed
