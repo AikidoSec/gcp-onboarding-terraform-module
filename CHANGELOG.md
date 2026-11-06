@@ -6,6 +6,7 @@
 
 - `org_principal_members` output for authoritative organization IAM bindings in both access modes.
 - Host-project services option in the organization example and credential verification guidance.
+- MIT license matching the AWS module.
 
 ### Changed
 

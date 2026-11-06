@@ -176,3 +176,7 @@ terraform output -raw credential_config_json > aikido-gcp-credentials.json
 ```
 
 If you enabled VM scanning, no bucket export setup or customer-side scanner service account key upload is required. The customer project only needs the IAM roles and bindings created by this module for the Aikido-managed scanner service account.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
