@@ -33,6 +33,13 @@ output "enabled_services" {
   value       = sort(tolist(local.enabled_services))
 }
 
+output "org_principal_members" {
+  description = "Members to include in organization IAM bindings for the selected access mode."
+  value       = sort(values(local.org_role_members))
+
+  depends_on = [google_iam_workload_identity_pool.aikido]
+}
+
 output "vm_scanner_member" {
   description = "Service account member granted VM scanning access when enable_vm_scanning is true."
   value       = local.vm_scanner_member

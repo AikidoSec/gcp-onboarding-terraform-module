@@ -14,8 +14,11 @@ host_project_number = "123456789"
 # Aikido instance region: eu, us, me, or au
 aikido_region = "eu"
 
-# Enable artifact registry scanning (disabled by default)
-enable_artifact_registry_reader = false
+# Enable host-project APIs for credential verification (module default: false)
+enable_host_project_services = true
+
+# Enable container scanning access (module default: false)
+enable_artifact_registry_reader = true
 
 # Access mode: "direct" (default) or "impersonation" (required for APIs such as App Engine)
 access_mode = "direct"

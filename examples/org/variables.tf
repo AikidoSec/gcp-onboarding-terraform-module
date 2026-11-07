@@ -25,6 +25,12 @@ variable "access_mode" {
   default     = "direct"
 }
 
+variable "enable_host_project_services" {
+  description = "Whether to enable scanning APIs in the host project."
+  type        = bool
+  default     = false
+}
+
 variable "enable_artifact_registry_reader" {
   description = "Whether to grant Artifact Registry read access."
   type        = bool

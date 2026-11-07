@@ -2,6 +2,8 @@
 
 Terraform modules for connecting Google Cloud to Aikido using Workload Identity Federation.
 
+Both modules allow Google provider versions 7.x and 8.x (`>= 7.0, < 9.0`).
+
 Two modules are provided depending on your onboarding scope:
 
 | Module                                 | Use when                              |
@@ -112,6 +114,8 @@ It:
 - Optionally grants organization-level Artifact Registry read access for container scanning
 - Optionally creates organization-scoped custom roles and bindings for GCP VM scanning
 
+API enablement is limited to the host project. Member-project asset collection is selected using each project's enabled APIs; the module does not enable services across the organization.
+
 ### Usage
 
 ```hcl
@@ -122,8 +126,22 @@ module "aikido" {
   project_id      = "my-host-project"
   project_number  = "123456789"
   aikido_region   = "eu"
+
+  enable_host_project_services    = true
+  enable_artifact_registry_reader = true
 }
 ```
+
+### Credential verification
+
+- `enable_host_project_services = true` enables scanning APIs in the host project, including Artifact Registry and BigQuery. Enabling APIs in other projects does not enable them here.
+- `enable_artifact_registry_reader = true` grants access for container scanning.
+
+Both settings default to `false`. Credential verification uses the cloud-scanning identity and checks Artifact Registry and BigQuery for CSPM, or just Artifact Registry for container connections, even without repositories or datasets. If verification fails, check the APIs and IAM permissions in the project being verified, apply any fixes, and retry.
+
+### Authoritative IAM bindings
+
+Already using `google_organization_iam_binding`? See the [organization module's binding example and migration guidance](./modules/org#authoritative-iam-bindings).
 
 ### Optional VM scanning
 
@@ -135,6 +153,9 @@ module "aikido" {
   project_id      = "my-host-project"
   project_number  = "123456789"
   aikido_region   = "us"
+
+  enable_host_project_services    = true
+  enable_artifact_registry_reader = true
 
   enable_vm_scanning                   = true
   gcp_vm_scanner_service_account_email = "aikido-vm-scanner@aikido-vm-scanning.iam.gserviceaccount.com"
@@ -157,3 +178,7 @@ terraform output -raw credential_config_json > aikido-gcp-credentials.json
 ```
 
 If you enabled VM scanning, no bucket export setup or customer-side scanner service account key upload is required. The customer project only needs the IAM roles and bindings created by this module for the Aikido-managed scanner service account.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).

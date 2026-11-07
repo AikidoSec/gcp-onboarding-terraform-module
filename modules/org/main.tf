@@ -211,6 +211,8 @@ resource "google_service_account_iam_member" "aikido_workload_identity_user" {
   service_account_id = local.impersonation_service_account_name
   role               = "roles/iam.workloadIdentityUser"
   member             = each.value
+
+  depends_on = [google_iam_workload_identity_pool.aikido]
 }
 
 resource "google_organization_iam_member" "aikido_org_roles" {
@@ -219,6 +221,8 @@ resource "google_organization_iam_member" "aikido_org_roles" {
   org_id = var.organization_id
   role   = each.value.role
   member = each.value.member
+
+  depends_on = [google_iam_workload_identity_pool.aikido]
 }
 
 resource "google_organization_iam_member" "aikido_artifact_registry_reader" {
@@ -227,6 +231,8 @@ resource "google_organization_iam_member" "aikido_artifact_registry_reader" {
   org_id = var.organization_id
   role   = "roles/artifactregistry.reader"
   member = each.value
+
+  depends_on = [google_iam_workload_identity_pool.aikido]
 }
 
 resource "google_organization_iam_custom_role" "vm_scanner" {
