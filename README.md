@@ -114,6 +114,8 @@ It:
 - Optionally grants organization-level Artifact Registry read access for container scanning
 - Optionally creates organization-scoped custom roles and bindings for GCP VM scanning
 
+API enablement is limited to the host project. Member-project asset collection is selected using each project's enabled APIs; the module does not enable services across the organization.
+
 ### Usage
 
 ```hcl

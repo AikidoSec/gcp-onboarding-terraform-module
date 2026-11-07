@@ -4,6 +4,8 @@ Connects an entire GCP organization to Aikido using Workload Identity Federation
 
 The Workload Identity Pool lives in a designated host project; IAM is granted at the organization level so all projects in the organization are covered.
 
+API enablement is limited to the host project. Member-project asset collection is selected using each project's enabled APIs; the module does not enable services across the organization.
+
 It supports:
 
 - the base GCP organization connection, with direct or service-account-impersonation access
