@@ -8,13 +8,11 @@
 - `access_mode` and `impersonation_service_account_email` outputs, and configurable impersonation token lifetimes from 3600 to 43200 seconds.
 - `org_principal_members` output for authoritative organization IAM bindings in both access modes.
 - Host-project services option in the organization example and credential verification guidance.
-- MIT license matching the AWS module.
 
 ### Changed
 
 - Enable API Keys, Cloud Functions, and Cloud Run APIs in the project module and when host-project services are enabled in the organization module.
 - Allow Google provider versions 7.x and 8.x in both modules and examples.
-- Enable host-project scanning APIs and container access in organization examples. Module defaults are unchanged.
 
 ### Fixed
 
