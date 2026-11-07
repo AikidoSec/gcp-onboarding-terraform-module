@@ -14,6 +14,12 @@ variable "aikido_region" {
   default     = "eu"
 }
 
+variable "access_mode" {
+  description = "How Aikido accesses the project: \"direct\" or \"impersonation\"."
+  type        = string
+  default     = "direct"
+}
+
 variable "enable_vm_scanning" {
   description = "Whether to provision IAM roles and bindings for GCP VM scanning."
   type        = bool

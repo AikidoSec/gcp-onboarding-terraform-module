@@ -19,6 +19,12 @@ variable "aikido_region" {
   default     = "eu"
 }
 
+variable "access_mode" {
+  description = "How Aikido accesses the organization: \"direct\" or \"impersonation\"."
+  type        = string
+  default     = "direct"
+}
+
 variable "enable_artifact_registry_reader" {
   description = "Whether to grant Artifact Registry read access."
   type        = bool
